@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/static/areas/js/jquery-3.3.1.min.js"></script>
+    <script>
+        // 页面加载完，才执行下面这段代码
+        $(function(){
+            //  使用ajax加载省信息，处理json数据，遍历从views中返回的数组，向pro中添加option
+            $.get('/area/pro',function(list){    // list—— {"data":[[1,'北京']，[2,'天津'],....]} list代表json
+                pro = $("#pro");
+                $.each(list.data,function(index,item){
+                    // 每个item的结构[1,'北京']
+                    pro.append('<option value="'+item[0]+'">'+item[1]+'</option>')   // json序列化后，都是字符串
+                });
+            });
+
+            //  查询市的信息
+            $("#pro").change(function(){
+                // /area/city140000/
+                $.get('/area/city'+$(this).val()+'/',function(list){           // list—— {"data":[{id:1,title:北京},{id:2,title:天津},{}...{}]}
+                    city = $("#city");
+                    city.empty().append('<option value="0">请选择市</option>');
+                    $("#dis").empty().append('<option value="0">请选择区县</option>');
+                    $.each(list.data,function(index,item){
+                        // {id:1,title:北京}
+                        city.append('<option value="'+item.id+'">'+item.title+'</option>');
+                    });
+                });
+            });
+
+            // 查询区县的信息
+            $("#city").change(function(){
+                $.get('/area/city'+$(this).val()+'/',function(list){
+                    dis = $("#dis").empty().append('<option value="0">请选择区县</option>');
+                    $.each(list.data,function(index,item){
+                        dis.append('<option value="'+item.id+'">'+item.title+'</option>');
+                    });
+                });
+            });
+        });
+
+        // 第一次，请求localhost,把整个html页面呈现出来
+        // 第二次，请求获取js文件
+        // 第三次，请求pro视图，视图返回的是json
+
+
+    </script>
+
+</head>
+<body>
+    <select id="pro">
+        <option value="0">请选择省</option>     <!-- option是下拉内容，
+                                               怎样用jquery向一个对象中追加其他对象？append(),$.each() -->
+    </select>
+
+    <select id="city">
+        <option value="0">请选择市</option>
+    </select>
+
+    <select id="dis">
+        <option value="0">请选择区县</option>
+    </select>
+</body>
+</html>
